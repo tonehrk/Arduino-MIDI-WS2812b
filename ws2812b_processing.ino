@@ -25,9 +25,13 @@ static const uint8_t
  
 // LED Color Values
 uint8_t
-  rVal = 255,
-  gVal = 255,
-  bVal = 255;
+  rVal = 64,
+  gVal = 64,
+  bVal = 64,
+// LED BG values
+  BrVal = 0,
+  BgVal = 0,
+  BbVal = 0;
 
 CRGB leds[NumLEDs];
 
@@ -41,7 +45,6 @@ void setup(){
   
   FastLED.addLeds<WS2812B, Pin, GRB>(leds, NumLEDs);
   FastLED.setBrightness(maxBright);
-  // backLEDS(); backgroundcolor testing
   FastLED.show();    
   
   MIDI.setHandleNoteOn(handleNoteOn);
@@ -57,7 +60,11 @@ void loop(){
  
 void handleNoteOn(byte channel, byte note, byte velocity){
      
-   if (note==109){  //Note signal to change color
+
+  
+  if(note < minNote || note > maxNote){
+    
+    if (note==109){  //Note signal to change color
      for(int i=0; i<3; i++){
         while(Serial.available()==0){};
         int inByte = Serial.read();     
@@ -75,12 +82,35 @@ void handleNoteOn(byte channel, byte note, byte velocity){
      }
      return;
    }
-  
-  if(note < minNote || note > maxNote){
+
+   if (note==110){   // Note signal to change background color
+       for(int i=0; i<3; i++){
+        while(Serial.available()==0){};
+        int inByte = Serial.read();     
+           switch (i) {
+                    case 0:
+                        BrVal = inByte;                  
+                        break;
+                    case 1:
+                        BgVal = inByte;
+                        break;
+                    case 2:
+                        BbVal = inByte;
+                   }
+        
+
+     }
+     for (int i=0;i<NumLEDs;i++){    // write bgcolor
+      leds[i] = CRGB(BrVal,BgVal,BbVal);
+      if (i==70){i+=1;}  // unnecessary * I skip one led to fill correct piano and strip position 
+      i+=1;
+    }
+     show();
+   }
     return;
   }
 
-  ledON(note - minNote);
+  ledON(note - minNote);  // playing note on 
   show();
 }
  
@@ -116,20 +146,7 @@ void setLED(uint8_t index, uint8_t r, uint8_t g, uint8_t b){
 }
 
 void show(){
-
   
    FastLED.show();
+
 }
-
-void backLEDS(){
-  {
-    for (int i=0;i<NumLEDs;i++){
-      leds[i] = CRGB(20,3,7);
-      if (i==70){i+=1;}
-      i+=1;
-    }
-  }
-
-
-  
-  }
