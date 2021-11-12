@@ -41,6 +41,7 @@ void setup(){
   
   FastLED.addLeds<WS2812B, Pin, GRB>(leds, NumLEDs);
   FastLED.setBrightness(maxBright);
+  // backLEDS(); backgroundcolor testing
   FastLED.show();    
   
   MIDI.setHandleNoteOn(handleNoteOn);
@@ -115,7 +116,20 @@ void setLED(uint8_t index, uint8_t r, uint8_t g, uint8_t b){
 }
 
 void show(){
+
   
    FastLED.show();
-
 }
+
+void backLEDS(){
+  {
+    for (int i=0;i<NumLEDs;i++){
+      leds[i] = CRGB(20,3,7);
+      if (i==70){i+=1;}
+      i+=1;
+    }
+  }
+
+
+  
+  }
